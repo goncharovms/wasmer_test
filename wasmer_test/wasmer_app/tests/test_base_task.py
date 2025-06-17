@@ -24,7 +24,6 @@ class GraphQLUserTests(TransactionTestCase):
         self.async_client = AsyncTestClient("/graphql")
 
     async def test_fetch_user_node(self):
-
         response = await self.async_client.query(
             """
             query getUser($id: String!) {
@@ -44,7 +43,6 @@ class GraphQLUserTests(TransactionTestCase):
         )
 
     async def test_fetch_deployed_app(self):
-
         response = await self.async_client.query(
             """
             query getApp($id: String!) {
@@ -83,7 +81,6 @@ class GraphQLUserTests(TransactionTestCase):
         user = await User.objects.aget(id=self.user_hobby.id)
         self.assertEqual(user.plan, Plan.PRO)
 
-
     async def test_downgrade_account(self):
         response = await self.async_client.query(
             """
@@ -104,3 +101,5 @@ class GraphQLUserTests(TransactionTestCase):
 
         user = await User.objects.aget(id=self.user_pro.id)
         self.assertEqual(user.plan, Plan.HOBBY)
+
+

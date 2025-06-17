@@ -16,3 +16,8 @@ class UserService(BaseService):
         user.plan = Plan.HOBBY
         await user.asave()
         return user
+
+    @classmethod
+    async def get_by_app_id(cls, app_id: str) -> User:
+        user = await User.objects.filter(apps__id=app_id).aget()
+        return user

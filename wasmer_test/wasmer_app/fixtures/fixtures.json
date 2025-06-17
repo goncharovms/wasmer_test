@@ -1,0 +1,286 @@
+[
+  {
+    "model": "wasmer_app.user",
+    "pk": "u_hobby1",
+    "fields": {
+      "username": "hobby1",
+      "plan": "HOBBY"
+    }
+  },
+  {
+    "model": "wasmer_app.user",
+    "pk": "u_hobby2",
+    "fields": {
+      "username": "hobby2",
+      "plan": "HOBBY"
+    }
+  },
+  {
+    "model": "wasmer_app.user",
+    "pk": "u_pro1",
+    "fields": {
+      "username": "pro1",
+      "plan": "PRO"
+    }
+  },
+  {
+    "model": "wasmer_app.user",
+    "pk": "u_pro2",
+    "fields": {
+      "username": "pro2",
+      "plan": "PRO"
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_active_hobby1",
+    "fields": {
+      "owner": "u_hobby1",
+      "active": true
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_inactive_hobby1",
+    "fields": {
+      "owner": "u_hobby1",
+      "active": false
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_active_pro1",
+    "fields": {
+      "owner": "u_pro1",
+      "active": true
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_inactive_pro1",
+    "fields": {
+      "owner": "u_pro1",
+      "active": false
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_active_pro1_2",
+    "fields": {
+      "owner": "u_pro1",
+      "active": true
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_inactive_pro1_2",
+    "fields": {
+      "owner": "u_pro1",
+      "active": false
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_active_pro2",
+    "fields": {
+      "owner": "u_pro2",
+      "active": true
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_inactive_pro2",
+    "fields": {
+      "owner": "u_pro2",
+      "active": false
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_active_hobby2",
+    "fields": {
+      "owner": "u_hobby2",
+      "active": true
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_inactive_hobby2",
+    "fields": {
+      "owner": "u_hobby2",
+      "active": false
+    }
+  },
+   {
+    "model": "wasmer_app.user",
+    "pk": "u_e1a2b3c4d5f6a7b8c9d0e1f2a3b4c5d6",
+    "fields": {
+      "username": "alice_wonder",
+      "plan": "HOBBY",
+      "plan_changed_at": "2025-03-10T09:00:00Z"
+    }
+  },
+  {
+    "model": "wasmer_app.user",
+    "pk": "u_b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4",
+    "fields": {
+      "username": "bob_builder",
+      "plan": "PRO",
+      "plan_changed_at": "2025-04-05T14:15:00Z"
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_0f1234567890abcdef1234567890abcd",
+    "fields": {
+      "owner": "u_e1a2b3c4d5f6a7b8c9d0e1f2a3b4c5d6",
+      "active": true
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_1234567890abcdef1234567890abcdef",
+    "fields": {
+      "owner": "u_b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4",
+      "active": false
+    }
+  },
+  {
+    "model": "wasmer_app.providercredential",
+    "pk": "cred_1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+    "fields": {
+      "user": "u_e1a2b3c4d5f6a7b8c9d0e1f2a3b4c5d6",
+      "is_active": true,
+      "provider": "AMAZON_SES",
+      "credentials": {"access_key": "AKIAEXAMPLE", "secret_key": "secret123"},
+      "credentials_hash": "abcdef1234567890abcdef1234567890",
+      "created_at": "2025-03-12T08:30:00Z"
+    }
+  },
+  {
+    "model": "wasmer_app.providercredential",
+    "pk": "cred_f1e2d3c4b5a6f7e8d9c0b1a2f3e4d5c6",
+    "fields": {
+      "user": "u_b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4",
+      "is_active": false,
+      "provider": "MAILGUN",
+      "credentials": {"api_key": "MG-API-KEY"},
+      "credentials_hash": "1234567890abcdef1234567890abcdef",
+      "created_at": "2025-04-20T10:45:00Z"
+    }
+  },
+  {
+    "model": "wasmer_app.email",
+    "pk": "em_de789abc1234567890abcdef12345678",
+    "fields": {
+      "deployed_app": "app_0f1234567890abcdef1234567890abcd",
+      "provider_credential": "cred_1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d",
+      "external_id": "ext_003",
+      "sent_at": "2025-06-16T16:20:00Z",
+      "subject": "Test Email",
+      "html": "<p>This is a test email.</p>",
+      "created_at": "2025-06-16T15:45:00Z",
+      "status": "SENT"
+    }
+  },
+  {
+    "model": "wasmer_app.email",
+    "pk": "em_9876543210abcdef1234567890abcdef",
+    "fields": {
+      "deployed_app": "app_1234567890abcdef1234567890abcdef",
+      "provider_credential": null,
+      "external_id": "ext_004",
+      "sent_at": null,
+      "subject": "Another Pending",
+      "html": "<p>Pending email content.</p>",
+      "status": "PENDING",
+      "created_at": "2025-06-16T15:45:00Z"
+    }
+  },
+  {
+    "model": "wasmer_app.user",
+    "pk": "u_1234567890abcdef1234567890abcdef",
+    "fields": {
+      "username": "john_doe",
+      "plan": "HOBBY",
+      "plan_changed_at": "2025-01-01T12:00:00Z"
+    }
+  },
+  {
+    "model": "wasmer_app.user",
+    "pk": "u_abcdef1234567890abcdef1234567890",
+    "fields": {
+      "username": "jane_smith",
+      "plan": "PRO",
+      "plan_changed_at": "2025-02-15T15:30:00Z"
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_abcdef1234567890abcdef1234567890",
+    "fields": {
+      "owner": "u_1234567890abcdef1234567890abcdef",
+      "active": true
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_fedcba0987654321fedcba0987654321",
+    "fields": {
+      "owner": "u_abcdef1234567890abcdef1234567890",
+      "active": false
+    }
+  },
+  {
+    "model": "wasmer_app.providercredential",
+    "pk": "cred_1234567890abcdef1234567890abcdef",
+    "fields": {
+      "user": "u_1234567890abcdef1234567890abcdef",
+      "is_active": true,
+      "provider": "SMTP2GO",
+      "credentials": {"api_key": "sample_api_key"},
+      "credentials_hash": "abcdef1234567890abcdef1234567890",
+      "created_at": "2025-01-10T10:00:00Z"
+    }
+  },
+  {
+    "model": "wasmer_app.providercredential",
+    "pk": "cred_fedcba0987654321fedcba0987654321",
+    "fields": {
+      "user": "u_abcdef1234567890abcdef1234567890",
+      "is_active": true,
+      "provider": "MAILGUN",
+      "credentials": {"api_key": "another_api_key"},
+      "credentials_hash": "1234567890abcdef1234567890abcdef",
+      "created_at": "2025-02-01T09:30:00Z"
+    }
+  },
+  {
+    "model": "wasmer_app.email",
+    "pk": "em_abcdef1234567890abcdef1234567890",
+    "fields": {
+      "deployed_app": "app_abcdef1234567890abcdef1234567890",
+      "provider_credential": "cred_1234567890abcdef1234567890abcdef",
+      "external_id": "ext_001",
+      "sent_at": "2025-06-17T12:00:00Z",
+      "subject": "Welcome Email",
+      "html": "<p>Hello, welcome!</p>",
+      "created_at": "2025-06-17T11:00:00Z",
+      "status": "SENT"
+    }
+  },
+  {
+    "model": "wasmer_app.email",
+    "pk": "em_fedcba0987654321fedcba0987654321",
+    "fields": {
+      "deployed_app": "app_fedcba0987654321fedcba0987654321",
+      "provider_credential": null,
+      "external_id": "ext_002",
+      "sent_at": null,
+      "subject": "Pending Email",
+      "html": "<p>Please wait...</p>",
+      "created_at": "2025-06-17T10:00:00Z",
+      "status": "PENDING"
+    }
+  }
+]
