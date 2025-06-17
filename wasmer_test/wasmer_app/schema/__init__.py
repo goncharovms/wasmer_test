@@ -7,6 +7,7 @@ from wasmer_app.schema.deployed_app_schema import DeployedApp
 import strawberry
 from typing import Optional
 
+from ..models import Plan
 from ..services.user_service import UserService
 
 Node = strawberry.union(
@@ -30,11 +31,17 @@ class Mutation:
 
     @strawberry.mutation
     async def upgrade_account(self, _: Info, user_id: strawberry.ID) -> Optional[User]:
-        return await UserService.upgrade_user(user_id)
+        user = await UserService.get_object(user_id)
+        if user.plan == Plan.PRO:
+            raise ValueError("Cannot downgrade a user already on the PRO plan.")
+        return await UserService.upgrade_user(user)
 
     @strawberry.mutation
     async def downgrade_account(self, _: Info, user_id: strawberry.ID) -> Optional[User]:
-        return await UserService.downgrade_user(user_id)
+        user = await UserService.get_object(user_id)
+        if user.plan == Plan.HOBBY:
+            raise ValueError("Cannot downgrade a user already on the HOBBY plan.")
+        return await UserService.downgrade_user(user)
 
 
 schema = strawberry.Schema(query=Query, mutation=Mutation)

@@ -2,6 +2,7 @@ from django.db import models
 
 import uuid
 from django.db import models
+from django.utils import timezone
 from django_choices_field import TextChoicesField
 
 
@@ -19,6 +20,7 @@ class User(models.Model):
     id = models.CharField(primary_key=True, default=user_id, editable=False, max_length=34)
     username = models.CharField(max_length=100)
     plan = TextChoicesField(choices_enum=Plan, default=Plan.HOBBY)
+    plan_changed_at = models.DateTimeField(auto_created=True, default=timezone.now)
 
 
 class DeployedApp(models.Model):

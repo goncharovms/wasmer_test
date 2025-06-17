@@ -5,15 +5,20 @@ from wasmer_app.models import User, DeployedApp, Plan
 
 class GraphQLUserTests(TransactionTestCase):
     def setUp(self):
-        self.user = User.objects.create(
-            id="u_test123",
+        self.user_hobby = User.objects.create(
+            id="u_test_hobby",
             username="alice",
             plan=Plan.HOBBY
         )
+        self.user_pro = User.objects.create(
+            id="u_test_pro",
+            username="alice",
+            plan=Plan.PRO
+        )
 
         self.deployed_app = DeployedApp.objects.create(
-            id="app_abc123",
-            owner=self.user,
+            id="app_test_pro",
+            owner=self.user_pro,
             active=True
         )
         self.async_client = AsyncTestClient("/graphql")
@@ -22,8 +27,8 @@ class GraphQLUserTests(TransactionTestCase):
 
         response = await self.async_client.query(
             """
-            query getUser {
-              node(id: "u_test123") {
+            query getUser($id: String!) {
+              node(id: $id) {
                 ...on User {
                   id
                   username
@@ -31,29 +36,30 @@ class GraphQLUserTests(TransactionTestCase):
                 }
               }
             }
-            """
+            """, variables={"id": self.user_hobby.id}
         )
-
         self.assertEqual(
             response.data["node"],
-            {'id': 'u_test123', 'username': 'alice', 'plan': 'HOBBY'}
+            {'id': self.user_hobby.id, 'username': self.user_hobby.username, 'plan': self.user_hobby.plan.value}
         )
 
     async def test_fetch_deployed_app(self):
 
         response = await self.async_client.query(
             """
-            query getApp {node(id: "app_abc123"){
-              ...on DeployedApp{
-                    id
-                    active
-                  }
-                }}
-            """
+            query getApp($id: String!) {
+              node(id: $id) {
+                ... on DeployedApp {
+                  id
+                  active
+                }
+              }
+            }
+            """, variables={"id": self.deployed_app.id}
         )
         self.assertEqual(
             response.data["node"],
-            {'id': 'app_abc123', 'active': True}
+            {'id': self.deployed_app.id, 'active': True}
         )
 
     async def test_upgrade_account(self):
@@ -66,15 +72,15 @@ class GraphQLUserTests(TransactionTestCase):
               }
             }
             """,
-            variables={"userId": "u_test123"}
+            variables={"userId": self.user_hobby.id}
         )
 
         self.assertEqual(
             response.data["upgradeAccount"],
-            {'id': 'u_test123', 'plan': 'PRO'}
+            {'id': self.user_hobby.id, 'plan': Plan.PRO.value}
         )
 
-        user = await User.objects.aget(id="u_test123")
+        user = await User.objects.aget(id=self.user_hobby.id)
         self.assertEqual(user.plan, Plan.PRO)
 
 
@@ -88,13 +94,13 @@ class GraphQLUserTests(TransactionTestCase):
               }
             }
             """,
-            variables={"userId": "u_test123"}
+            variables={"userId": self.user_pro.id}
         )
 
         self.assertEqual(
             response.data["downgradeAccount"],
-            {'id': 'u_test123', 'plan': 'HOBBY'}
+            {'id': self.user_pro.id, 'plan': Plan.HOBBY.value}
         )
 
-        user = await User.objects.aget(id="u_test123")
+        user = await User.objects.aget(id=self.user_pro.id)
         self.assertEqual(user.plan, Plan.HOBBY)

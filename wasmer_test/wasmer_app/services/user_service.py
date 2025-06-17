@@ -6,11 +6,13 @@ class UserService(BaseService):
     model_class = User
 
     @classmethod
-    async def upgrade_user(cls, user_id: str) -> User:
-        await User.objects.filter(id=user_id).aupdate(plan=Plan.PRO)
-        return await cls.get_object(user_id)
+    async def upgrade_user(cls, user: User) -> User:
+        user.plan = Plan.PRO
+        await user.asave()
+        return user
 
     @classmethod
-    async def downgrade_user(cls, user_id: str) -> User:
-        await User.objects.filter(id=user_id).aupdate(plan=Plan.HOBBY)
-        return await cls.get_object(user_id)
+    async def downgrade_user(cls, user: User) -> User:
+        user.plan = Plan.HOBBY
+        await user.asave()
+        return user
