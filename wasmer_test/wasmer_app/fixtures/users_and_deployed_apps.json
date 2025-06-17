@@ -1,0 +1,114 @@
+[
+  {
+    "model": "wasmer_app.user",
+    "pk": "u_hobby1",
+    "fields": {
+      "username": "hobby1",
+      "plan": "HOBBY"
+    }
+  },
+  {
+    "model": "wasmer_app.user",
+    "pk": "u_hobby2",
+    "fields": {
+      "username": "hobby2",
+      "plan": "HOBBY"
+    }
+  },
+  {
+    "model": "wasmer_app.user",
+    "pk": "u_pro1",
+    "fields": {
+      "username": "pro1",
+      "plan": "PRO"
+    }
+  },
+  {
+    "model": "wasmer_app.user",
+    "pk": "u_pro2",
+    "fields": {
+      "username": "pro2",
+      "plan": "PRO"
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_active_hobby1",
+    "fields": {
+      "owner": "u_hobby1",
+      "active": true
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_inactive_hobby1",
+    "fields": {
+      "owner": "u_hobby1",
+      "active": false
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_active_pro1",
+    "fields": {
+      "owner": "u_pro1",
+      "active": true
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_inactive_pro1",
+    "fields": {
+      "owner": "u_pro1",
+      "active": false
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_active_pro1_2",
+    "fields": {
+      "owner": "u_pro1",
+      "active": true
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_inactive_pro1_2",
+    "fields": {
+      "owner": "u_pro1",
+      "active": false
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_active_pro2",
+    "fields": {
+      "owner": "u_pro2",
+      "active": true
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_inactive_pro2",
+    "fields": {
+      "owner": "u_pro2",
+      "active": false
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_active_hobby2",
+    "fields": {
+      "owner": "u_hobby2",
+      "active": true
+    }
+  },
+  {
+    "model": "wasmer_app.deployedapp",
+    "pk": "app_inactive_hobby2",
+    "fields": {
+      "owner": "u_hobby2",
+      "active": false
+    }
+  }
+]
