@@ -3,9 +3,8 @@ from typing import List, Optional
 import strawberry
 import strawberry_django
 from strawberry import ID, auto
-
-from wasmer_app.schema import PlainTextNode
 from wasmer_app.models import User as User_
+from wasmer_app.schema import PlainTextNode
 from wasmer_app.services.email_service import EmailService
 from wasmer_app.services.user_service import UserService
 from wasmer_app.structures.input_enums import GroupByEnum
@@ -26,12 +25,13 @@ class UserEmails:
         group_by: GroupByEnum,
         time_window: Optional[TimeWindow] = None,
     ) -> List[EmailUsageGrouped]:
-        return await EmailService.get_usage_summary(str(self.user_id), group_by, time_window)
-
+        return await EmailService.get_usage_summary(
+            str(self.user_id), group_by, time_window
+        )
 
 
 @strawberry_django.type(User_, name="User")
-@PlainTextNode.register_type('u')
+@PlainTextNode.register_type("u")
 class User(PlainTextNode):
     id: ID
     username: auto

@@ -1,4 +1,4 @@
-from wasmer_app.models import User, Plan
+from wasmer_app.models import Plan, User
 from wasmer_app.services.base_service import BaseService
 
 

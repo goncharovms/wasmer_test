@@ -1,4 +1,4 @@
-from typing import ClassVar, Dict, Type, Optional
+from typing import ClassVar, Dict, Optional, Type
 
 
 class PlainTextNode:
@@ -23,6 +23,7 @@ class PlainTextNode:
         def wrapped(type_: Type):
             cls._registry[alias] = type_
             return type_
+
         return wrapped
 
     @classmethod

@@ -10,12 +10,10 @@ https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/
 import os
 
 import django
-from django.core.asgi import get_asgi_application
 from strawberry.asgi import GraphQL
-
 from wasmer_app.schema import schema
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wasmer_test.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wasmer_test.settings")
 
 django.setup()
 

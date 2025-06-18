@@ -1,19 +1,21 @@
 from datetime import datetime
 
+from django.db.models import Count, Q
+from django.db.models.functions import TruncDay, TruncMonth, TruncWeek
 from wasmer_app.models import Email, EmailStatus
 from wasmer_app.services.base_service import BaseService
-from django.db.models.functions import TruncDay, TruncWeek, TruncMonth
-from django.db.models import Count, Q
-
 from wasmer_app.structures.input_enums import GroupByEnum
-from wasmer_app.structures.strawbery_types import EmailUsageGrouped, EmailUsageSummary
+from wasmer_app.structures.strawbery_types import (EmailUsageGrouped,
+                                                   EmailUsageSummary)
 
 
 class EmailService(BaseService):
     model_class = Email
 
     @classmethod
-    async def get_count_per_trial_period(cls, user_id: str, period_start_at:datetime) -> int:
+    async def get_count_per_trial_period(
+        cls, user_id: str, period_start_at: datetime
+    ) -> int:
         email_count = await Email.objects.filter(
             deployed_app__owner_id=user_id,
             created_at__gt=period_start_at,
@@ -21,17 +23,8 @@ class EmailService(BaseService):
         return email_count
 
     @classmethod
-    async def create_email(
-        cls,
-        app_id: str,
-        subject: str,
-        html: str
-    ) -> Email:
-        email = Email(
-            deployed_app_id=app_id,
-            subject=subject,
-            html=html
-        )
+    async def create_email(cls, app_id: str, subject: str, html: str) -> Email:
+        email = Email(deployed_app_id=app_id, subject=subject, html=html)
         await email.asave()
         return email
 
@@ -49,9 +42,7 @@ class EmailService(BaseService):
         }
         trunc_fn = trunc_map[group_by]
 
-        queryset = Email.objects.filter(
-            deployed_app__owner_id=user_id
-        )
+        queryset = Email.objects.filter(deployed_app__owner_id=user_id)
 
         if time_window:
             queryset = queryset.filter(
@@ -59,22 +50,29 @@ class EmailService(BaseService):
                 created_at__lte=time_window.end,
             )
 
-        queryset = queryset.annotate(period=trunc_fn('created_at')).values('period').annotate(
-            total=Count('id'),
-            sent=Count('id', filter=Q(status=EmailStatus.SENT)),
-            failed=Count('id', filter=Q(status=EmailStatus.FAILED)),
-            read=Count('id', filter=Q(status=EmailStatus.READ)),
-        ).order_by('period')
+        queryset = (
+            queryset.annotate(period=trunc_fn("created_at"))
+            .values("period")
+            .annotate(
+                total=Count("id"),
+                sent=Count("id", filter=Q(status=EmailStatus.SENT)),
+                failed=Count("id", filter=Q(status=EmailStatus.FAILED)),
+                read=Count("id", filter=Q(status=EmailStatus.READ)),
+            )
+            .order_by("period")
+        )
 
         results = []
         async for row in queryset.aiterator():
-            results.append(EmailUsageGrouped(
-                timestamp=row['period'],
-                emails=EmailUsageSummary(
-                    total=row['total'],
-                    sent=row['sent'],
-                    failed=row['failed'],
-                    read=row['read'],
+            results.append(
+                EmailUsageGrouped(
+                    timestamp=row["period"],
+                    emails=EmailUsageSummary(
+                        total=row["total"],
+                        sent=row["sent"],
+                        failed=row["failed"],
+                        read=row["read"],
+                    ),
                 )
-            ))
+            )
         return results
