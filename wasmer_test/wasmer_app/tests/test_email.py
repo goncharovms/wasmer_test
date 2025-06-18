@@ -6,7 +6,15 @@ from django.conf import settings
 from django.test import TransactionTestCase
 from django.utils import timezone
 from strawberry_django.test.client import AsyncTestClient
-from wasmer_app.models import DeployedApp, Email, EmailStatus, Plan, User
+from wasmer_app.models import (
+    DeployedApp,
+    Email,
+    EmailStatus,
+    Plan,
+    Provider,
+    ProviderCredential,
+    User,
+)
 
 
 class GraphQLUserTests(TransactionTestCase):
@@ -31,6 +39,19 @@ class GraphQLUserTests(TransactionTestCase):
         )
         self.pro_app = DeployedApp.objects.create(
             id=f"app_{uuid4().hex}", owner=self.pro_user
+        )
+        self.creds = ProviderCredential.objects.create(
+            user=self.hobby_user,
+            is_active=True,
+            provider=Provider.AMAZON_SES,
+            credentials={
+                "host": "smtp.ethereal.email",
+                "port": 587,
+                "username": "albina.upton37@ethereal.email",
+                "password": "cbr1CGtZAufYkM9Xgu",
+                "use_tls": True,
+            },
+            credentials_hash="9e9dbf69d960739dbbc67aa6d7902029025ad646c823c918e99338a576df5ef6",
         )
         self.async_client = AsyncTestClient("/graphql")
         self.send_email_query = """
@@ -70,14 +91,14 @@ class GraphQLUserTests(TransactionTestCase):
         new_callable=AsyncMock,
     )
     @patch(
-        "wasmer_app.services.email_service.EmailService.create_email",
+        "wasmer_app.email_providers.email_provider.EmailSender._send",
         new_callable=AsyncMock,
     )
-    async def test_send_email_hobby_user_within_limit(
-        self, mock_create_email, mock_get_count
-    ):
+    async def test_send_email_hobby_user_within_limit(self, mock_send, mock_get_count):
         mock_get_count.return_value = settings.EMAIL_LIMIT_COUNT - 1
-        mock_create_email.return_value = type("Email", (), {"id": "email_123"})
+        mock_send.return_value = (
+            "Accepted [STATUS=new MSGID=aFLx7W5F3rtNsImJaFMW-9mj0IJfKetc]"
+        )
 
         variables = {
             "appId": self.hobby_app.id,
@@ -90,20 +111,20 @@ class GraphQLUserTests(TransactionTestCase):
         )
 
         self.assertTrue(response.data["sendEmail"]["successful"])
+        email = (
+            await Email.objects.filter(deployed_app=self.hobby_app)
+            .order_by("-created_at")
+            .afirst()
+        )
+        self.assertEqual(email.status, EmailStatus.SENT)
+        self.assertEqual(email.external_id, "aFLx7W5F3rtNsImJaFMW-9mj0IJfKetc")
 
     @patch(
         "wasmer_app.services.email_service.EmailService.get_count_per_trial_period",
         new_callable=AsyncMock,
     )
-    @patch(
-        "wasmer_app.services.email_service.EmailService.create_email",
-        new_callable=AsyncMock,
-    )
-    async def test_send_email_hobby_user_over_limit(
-        self, mock_create_email, mock_get_count
-    ):
+    async def test_send_email_hobby_user_over_limit(self, mock_get_count):
         mock_get_count.return_value = settings.EMAIL_LIMIT_COUNT
-        mock_create_email.return_value = type("Email", (), {"id": "email_123"})
 
         variables = {
             "appId": self.hobby_app.id,
@@ -117,7 +138,7 @@ class GraphQLUserTests(TransactionTestCase):
 
         self.assertFalse(response.data["sendEmail"]["successful"])
 
-    async def test_user_email_usage_with_variables(self):
+    async def test_user_email_usage(self):
         start = (timezone.now() - timedelta(days=3)).isoformat()
         end = timezone.now().isoformat()
 

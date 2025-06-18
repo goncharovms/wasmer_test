@@ -4,6 +4,7 @@ import strawberry
 from django.conf import settings
 from django.utils import timezone
 from strawberry import Info
+from wasmer_app.email_providers.email_provider import send_email
 from wasmer_app.models import Plan
 from wasmer_app.schema.base_node import PlainTextNode
 from wasmer_app.schema.deployed_app_schema import DeployedApp
@@ -60,7 +61,10 @@ class Mutation:
                     successful=False, message="Email limit reached for hobby plan."
                 )
 
-        await EmailService.create_email(app_id=app_id, subject=subject, html=html)
+        email = await EmailService.create_email(
+            app_id=app_id, subject=subject, html=html
+        )
+        await send_email(email)
         return EmailCreatedResponse(successful=True)
 
 

@@ -9,13 +9,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wasmer_app', '0001_initial'),
+        ("wasmer_app", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='plan_changed_at',
-            field=models.DateTimeField(auto_created=True, default=django.utils.timezone.now),
+            model_name="user",
+            name="plan_changed_at",
+            field=models.DateTimeField(
+                auto_created=True, default=django.utils.timezone.now
+            ),
         ),
     ]

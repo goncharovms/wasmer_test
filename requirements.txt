@@ -1,6 +1,8 @@
 aiodataloader==0.4.2
+aiosmtplib==4.0.1
 anyio==4.9.0
 asgiref==3.8.1
+certifi==2025.6.15
 Django==4.2
 django-choices-field==2.3.0
 graphql-core==3.2.6

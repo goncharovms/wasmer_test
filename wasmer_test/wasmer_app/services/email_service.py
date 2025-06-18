@@ -5,8 +5,7 @@ from django.db.models.functions import TruncDay, TruncMonth, TruncWeek
 from wasmer_app.models import Email, EmailStatus
 from wasmer_app.services.base_service import BaseService
 from wasmer_app.structures.input_enums import GroupByEnum
-from wasmer_app.structures.strawbery_types import (EmailUsageGrouped,
-                                                   EmailUsageSummary)
+from wasmer_app.structures.strawbery_types import EmailUsageGrouped, EmailUsageSummary
 
 
 class EmailService(BaseService):

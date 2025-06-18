@@ -9,24 +9,55 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='User',
+            name="User",
             fields=[
-                ('id', models.CharField(default=wasmer_app.models.user_id, editable=False, max_length=34, primary_key=True, serialize=False)),
-                ('username', models.CharField(max_length=100)),
-                ('plan', models.CharField(choices=[('HOBBY', 'Hobby'), ('PRO', 'Pro')], default='HOBBY', max_length=10)),
+                (
+                    "id",
+                    models.CharField(
+                        default=wasmer_app.models.user_id,
+                        editable=False,
+                        max_length=34,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("username", models.CharField(max_length=100)),
+                (
+                    "plan",
+                    models.CharField(
+                        choices=[("HOBBY", "Hobby"), ("PRO", "Pro")],
+                        default="HOBBY",
+                        max_length=10,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='DeployedApp',
+            name="DeployedApp",
             fields=[
-                ('id', models.CharField(default=wasmer_app.models.deployed_app_id, editable=False, max_length=36, primary_key=True, serialize=False)),
-                ('active', models.BooleanField(default=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='apps', to='wasmer_app.user')),
+                (
+                    "id",
+                    models.CharField(
+                        default=wasmer_app.models.deployed_app_id,
+                        editable=False,
+                        max_length=36,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                ("active", models.BooleanField(default=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="apps",
+                        to="wasmer_app.user",
+                    ),
+                ),
             ],
         ),
     ]
