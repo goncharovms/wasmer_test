@@ -1,7 +1,12 @@
 from datetime import datetime
 
-from wasmer_app.models import Email
+from wasmer_app.models import Email, EmailStatus
 from wasmer_app.services.base_service import BaseService
+from django.db.models.functions import TruncDay, TruncWeek, TruncMonth
+from django.db.models import Count, Q
+
+from wasmer_app.structures.input_enums import GroupByEnum
+from wasmer_app.structures.strawbery_types import EmailUsageGrouped, EmailUsageSummary
 
 
 class EmailService(BaseService):
@@ -29,3 +34,47 @@ class EmailService(BaseService):
         )
         await email.asave()
         return email
+
+    @staticmethod
+    async def get_sent_email_count(user_id: str) -> int:
+        acount_ = await Email.objects.filter(deployed_app__owner_id=user_id).acount()
+        return acount_
+
+    @staticmethod
+    async def get_usage_summary(user_id: str, group_by: GroupByEnum, time_window=None):
+        trunc_map = {
+            GroupByEnum.DAY: TruncDay,
+            GroupByEnum.WEEK: TruncWeek,
+            GroupByEnum.MONTH: TruncMonth,
+        }
+        trunc_fn = trunc_map[group_by]
+
+        queryset = Email.objects.filter(
+            deployed_app__owner_id=user_id
+        )
+
+        if time_window:
+            queryset = queryset.filter(
+                created_at__gte=time_window.start,
+                created_at__lte=time_window.end,
+            )
+
+        queryset = queryset.annotate(period=trunc_fn('created_at')).values('period').annotate(
+            total=Count('id'),
+            sent=Count('id', filter=Q(status=EmailStatus.SENT)),
+            failed=Count('id', filter=Q(status=EmailStatus.FAILED)),
+            read=Count('id', filter=Q(status=EmailStatus.READ)),
+        ).order_by('period')
+
+        results = []
+        async for row in queryset.aiterator():
+            results.append(EmailUsageGrouped(
+                timestamp=row['period'],
+                emails=EmailUsageSummary(
+                    total=row['total'],
+                    sent=row['sent'],
+                    failed=row['failed'],
+                    read=row['read'],
+                )
+            ))
+        return results

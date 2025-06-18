@@ -16,3 +16,4 @@ class Email(PlainTextNode):
 class EmailCreatedResponse:
     successful: bool
     message: Optional[str] = None
+

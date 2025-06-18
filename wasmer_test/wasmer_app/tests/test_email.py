@@ -1,8 +1,10 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.test import TransactionTestCase
 from django.utils import timezone
 from uuid import uuid4
-from wasmer_app.models import User, DeployedApp, Plan
+from wasmer_app.models import User, DeployedApp, Plan, Email, EmailStatus
 from strawberry_django.test.client import AsyncTestClient
 from unittest.mock import AsyncMock, patch
 
@@ -35,6 +37,28 @@ class GraphQLUserTests(TransactionTestCase):
             }
         """
 
+        now = timezone.now()
+        Email.objects.bulk_create([
+            Email(
+                id=f"e_{uuid4().hex}",
+                deployed_app=self.hobby_app,
+                status=EmailStatus.SENT,
+                created_at=now - timedelta(days=1)
+            ),
+            Email(
+                id=f"e_{uuid4().hex}",
+                deployed_app=self.hobby_app,
+                status=EmailStatus.FAILED,
+                created_at=now - timedelta(days=1)
+            ),
+            Email(
+                id=f"e_{uuid4().hex}",
+                deployed_app=self.hobby_app,
+                status=EmailStatus.READ,
+                created_at=now - timedelta(days=2)
+            ),
+        ])
+
     @patch("wasmer_app.services.email_service.EmailService.get_count_per_trial_period", new_callable=AsyncMock)
     @patch("wasmer_app.services.email_service.EmailService.create_email", new_callable=AsyncMock)
     async def test_send_email_hobby_user_within_limit(self, mock_create_email, mock_get_count):
@@ -42,7 +66,7 @@ class GraphQLUserTests(TransactionTestCase):
         mock_create_email.return_value = type("Email", (), {"id": "email_123"})
 
         variables = {
-            "appId": str(self.hobby_app.id),
+            "appId": self.hobby_app.id,
             "subject": "Test Subject",
             "html": "<p>Test HTML</p>"
         }
@@ -58,7 +82,7 @@ class GraphQLUserTests(TransactionTestCase):
         mock_create_email.return_value = type("Email", (), {"id": "email_123"})
 
         variables = {
-            "appId": str(self.hobby_app.id),
+            "appId": self.hobby_app.id,
             "subject": "Test Subject",
             "html": "<p>Test HTML</p>"
         }
@@ -66,4 +90,65 @@ class GraphQLUserTests(TransactionTestCase):
         response = await self.async_client.query(self.send_email_query, variables=variables)
 
         self.assertFalse(response.data["sendEmail"]["successful"])
+
+    async def test_user_email_usage_with_variables(self):
+        start = (timezone.now() - timedelta(days=3)).isoformat()
+        end = timezone.now().isoformat()
+
+        query = """
+        query UserEmailStats($id: String!, $groupBy: GroupByEnum!, $timeWindow: TimeWindow) {
+          node(id: $id) {
+            ... on User {
+              id
+              username
+              plan
+              emails {
+                sentEmailsCount
+                usage(groupBy: $groupBy, timeWindow: $timeWindow) {
+                  timestamp
+                  emails {
+                    total
+                    sent
+                    failed
+                    read
+                  }
+                }
+              }
+            }
+          }
+        }
+        """
+
+        # Encode the global relay Node ID if using Node interface
+
+        variables = {
+            "id": self.hobby_user.id,
+            "groupBy": "DAY",
+            "timeWindow": {
+                "start": start,
+                "end": end,
+            }
+        }
+
+        response = await self.async_client.query(query=query, variables=variables)
+
+        user_data = response.data["node"]
+        self.assertEqual(user_data["id"], self.hobby_user.id)
+        self.assertEqual(user_data["username"], "hobby_user")
+        self.assertEqual(user_data["plan"], "HOBBY")
+        self.assertEqual(user_data["emails"]["sentEmailsCount"], 3)
+
+        usage_data = user_data["emails"]["usage"]
+        self.assertGreater(len(usage_data), 0)
+        totals = {
+            "sent": sum(day["emails"]["sent"] for day in usage_data),
+            "failed": sum(day["emails"]["failed"] for day in usage_data),
+            "read": sum(day["emails"]["read"] for day in usage_data),
+            "total": sum(day["emails"]["total"] for day in usage_data),
+        }
+
+        self.assertEqual(totals["sent"], 1)
+        self.assertEqual(totals["failed"], 1)
+        self.assertEqual(totals["read"], 1)
+        self.assertEqual(totals["total"], 3)
 
