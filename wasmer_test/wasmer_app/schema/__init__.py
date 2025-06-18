@@ -1,6 +1,3 @@
-import datetime
-from math import trunc
-
 from django.conf import settings
 from django.utils import timezone
 from strawberry import Info
@@ -12,7 +9,7 @@ from wasmer_app.schema.deployed_app_schema import DeployedApp
 import strawberry
 from typing import Optional
 
-from .email_schema import Email, EmailCreatedResponse
+from .email_schema import EmailCreatedResponse
 from ..models import Plan
 from ..services.email_service import EmailService
 from ..services.user_service import UserService

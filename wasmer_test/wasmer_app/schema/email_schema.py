@@ -2,7 +2,7 @@ from typing import Optional
 
 import strawberry
 import strawberry_django
-from strawberry import ID, auto
+from strawberry import ID
 
 from wasmer_app.schema import PlainTextNode
 from wasmer_app.models import Email as Email_
