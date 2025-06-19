@@ -10,8 +10,9 @@ from wasmer_app.schema.base_node import PlainTextNode
 from wasmer_app.schema.deployed_app_schema import DeployedApp
 from wasmer_app.schema.email_schema import EmailCreatedResponse
 from wasmer_app.schema.user_schema import User
-from wasmer_app.services.email_service import EmailService
-from wasmer_app.services.user_service import UserService
+from wasmer_app.services.email_repository import EmailRepository
+from wasmer_app.services.user_repository import UserRepository
+from wasmer_app.services.deployed_app_repository import DeployedAppRepository
 
 Node = strawberry.union("Node", (User, DeployedApp))
 
@@ -28,31 +29,32 @@ class Mutation:
 
     @strawberry.mutation
     async def upgrade_account(self, _: Info, user_id: strawberry.ID) -> Optional[User]:
-        user = await UserService.get_object(user_id)
+        user = await UserRepository.get_object(user_id)
         if user.plan == Plan.PRO:
             raise ValueError("Cannot downgrade a user already on the PRO plan.")
-        return await UserService.upgrade_user(user)
+        return await UserRepository.upgrade_user(user)
 
     @strawberry.mutation
     async def downgrade_account(
         self, _: Info, user_id: strawberry.ID
     ) -> Optional[User]:
-        user = await UserService.get_object(user_id)
+        user = await UserRepository.get_object(user_id)
         if user.plan == Plan.HOBBY:
             raise ValueError("Cannot downgrade a user already on the HOBBY plan.")
-        return await UserService.downgrade_user(user)
+        return await UserRepository.downgrade_user(user)
 
     @strawberry.mutation
     async def send_email(
-        self, _: Info, app_id: strawberry.ID, subject: str, html: str
+        self, _: Info, app_id: strawberry.ID, to: str, subject: str, html: str
     ) -> Optional[EmailCreatedResponse]:
-        user = await UserService.get_by_app_id(app_id)
+        deployed_app = await DeployedAppRepository.get_object(app_id)
+        user = await UserRepository.get_object(deployed_app.owner_id)
         if user.plan == Plan.HOBBY:
             period_start_at = max(
                 user.plan_changed_at,
                 timezone.now() - timezone.timedelta(days=settings.EMAIL_LIMIT_PERIOD),
             )
-            emails_count = await EmailService.get_count_per_trial_period(
+            emails_count = await EmailRepository.get_count_per_trial_period(
                 user_id=user.id, period_start_at=period_start_at
             )
             if emails_count >= settings.EMAIL_LIMIT_COUNT:
@@ -61,10 +63,10 @@ class Mutation:
                     successful=False, message="Email limit reached for hobby plan."
                 )
 
-        email = await EmailService.create_email(
-            app_id=app_id, subject=subject, html=html
+        email = await EmailRepository.create_email(
+            app_id=app_id, subject=subject, html=html, receiver=to,
         )
-        await send_email(email)
+        await send_email(email, deployed_app)
         return EmailCreatedResponse(successful=True)
 
 

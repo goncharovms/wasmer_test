@@ -1,7 +1,7 @@
 from django.db.models import Model
 
 
-class BaseService:
+class BaseRepository:
     model_class: Model = NotImplemented
 
     @classmethod

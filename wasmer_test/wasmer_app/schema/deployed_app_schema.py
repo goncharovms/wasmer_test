@@ -2,7 +2,7 @@ import strawberry_django
 from strawberry import ID, auto
 from wasmer_app.models import DeployedApp as DeployedApp_
 from wasmer_app.schema import PlainTextNode
-from wasmer_app.services.deployed_app_service import DeployedAppService
+from wasmer_app.services.deployed_app_repository import DeployedAppRepository
 
 
 @strawberry_django.type(DeployedApp_, name="DeployedApp")
@@ -13,4 +13,4 @@ class DeployedApp(PlainTextNode):
 
     @classmethod
     async def resolve_node(cls, node_id):
-        return await DeployedAppService.get_object(node_id)
+        return await DeployedAppRepository.get_object(node_id)

@@ -55,8 +55,8 @@ class GraphQLUserTests(TransactionTestCase):
         )
         self.async_client = AsyncTestClient("/graphql")
         self.send_email_query = """
-            mutation SendEmail($appId: ID!, $subject: String!, $html: String!) {
-                sendEmail(appId: $appId, subject: $subject, html: $html) {
+            mutation SendEmail($appId: ID!, $to: String!, $subject: String!, $html: String!) {
+                sendEmail(appId: $appId, to: $to, subject: $subject, html: $html) {
                     successful message
                 }
             }
@@ -87,7 +87,7 @@ class GraphQLUserTests(TransactionTestCase):
         )
 
     @patch(
-        "wasmer_app.services.email_service.EmailService.get_count_per_trial_period",
+        "wasmer_app.services.email_repository.EmailRepository.get_count_per_trial_period",
         new_callable=AsyncMock,
     )
     @patch(
@@ -104,6 +104,7 @@ class GraphQLUserTests(TransactionTestCase):
             "appId": self.hobby_app.id,
             "subject": "Test Subject",
             "html": "<p>Test HTML</p>",
+            "to": "test_mail@gmail.com",
         }
 
         response = await self.async_client.query(
@@ -120,7 +121,7 @@ class GraphQLUserTests(TransactionTestCase):
         self.assertEqual(email.external_id, "aFLx7W5F3rtNsImJaFMW-9mj0IJfKetc")
 
     @patch(
-        "wasmer_app.services.email_service.EmailService.get_count_per_trial_period",
+        "wasmer_app.services.email_repository.EmailRepository.get_count_per_trial_period",
         new_callable=AsyncMock,
     )
     async def test_send_email_hobby_user_over_limit(self, mock_get_count):
@@ -130,6 +131,7 @@ class GraphQLUserTests(TransactionTestCase):
             "appId": self.hobby_app.id,
             "subject": "Test Subject",
             "html": "<p>Test HTML</p>",
+            "to": "test_mail@gmail.com",
         }
 
         response = await self.async_client.query(

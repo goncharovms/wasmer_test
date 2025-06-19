@@ -102,10 +102,9 @@ class Email(models.Model):
         null=True,
         db_index=True,
     )
-
-    external_id = models.CharField(max_length=100, null=True)
-    sent_at = models.DateTimeField(auto_now_add=True, null=True)
+    receiver = models.CharField(max_length=255, blank=True, null=True, db_index=True)
+    external_id = models.CharField(max_length=100, null=True, db_index=True)
     subject = models.CharField(max_length=511, blank=True, null=True)
     html = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     status = TextChoicesField(choices_enum=EmailStatus, default=EmailStatus.PENDING)

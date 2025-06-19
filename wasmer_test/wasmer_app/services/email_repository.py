@@ -3,12 +3,12 @@ from datetime import datetime
 from django.db.models import Count, Q
 from django.db.models.functions import TruncDay, TruncMonth, TruncWeek
 from wasmer_app.models import Email, EmailStatus
-from wasmer_app.services.base_service import BaseService
+from wasmer_app.services.base_repository import BaseRepository
 from wasmer_app.structures.input_enums import GroupByEnum
 from wasmer_app.structures.strawbery_types import EmailUsageGrouped, EmailUsageSummary
 
 
-class EmailService(BaseService):
+class EmailRepository(BaseRepository):
     model_class = Email
 
     @classmethod
@@ -22,8 +22,8 @@ class EmailService(BaseService):
         return email_count
 
     @classmethod
-    async def create_email(cls, app_id: str, subject: str, html: str) -> Email:
-        email = Email(deployed_app_id=app_id, subject=subject, html=html)
+    async def create_email(cls, app_id: str, subject: str, html: str, receiver: str) -> Email:
+        email = Email(deployed_app_id=app_id, subject=subject, html=html, receiver=receiver)
         await email.asave()
         return email
 
@@ -31,6 +31,13 @@ class EmailService(BaseService):
     async def get_sent_email_count(user_id: str) -> int:
         acount_ = await Email.objects.filter(deployed_app__owner_id=user_id).acount()
         return acount_
+
+    @staticmethod
+    async def update_email(email: Email, **kwargs) -> Email:
+        for key, value in kwargs.items():
+            setattr(email, key, value)
+        await email.asave()
+        return email
 
     @staticmethod
     async def get_usage_summary(user_id: str, group_by: GroupByEnum, time_window=None):

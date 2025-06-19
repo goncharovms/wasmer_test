@@ -1,11 +1,12 @@
-import email.message
+from  email.message import EmailMessage
 import re
 import ssl
 
 import aiosmtplib
 import certifi
-from asgiref.sync import sync_to_async
-from wasmer_app.models import Email, EmailStatus, Provider, ProviderCredential
+from wasmer_app.models import Email, EmailStatus, Provider, ProviderCredential, DeployedApp
+from wasmer_app.services.credentials_repository import ProviderCredentialsRepository
+from wasmer_app.services.email_repository import EmailRepository
 
 ssl_context = ssl.create_default_context(cafile=certifi.where())
 
@@ -33,10 +34,10 @@ class EmailSender:
         return response_message
 
     @property
-    def message(self) -> email.message.EmailMessage:
-        message = email.message.EmailMessage()
+    def message(self) -> EmailMessage:
+        message = EmailMessage()
         message["From"] = self.credentials.credentials["username"]
-        message["To"] = "albina.upton37@ethereal.email"
+        message["To"] = self.email.receiver
         message["Subject"] = self.email.subject
         message.set_content(self.email.html)
         message.add_alternative(self.email.html, subtype="html")
@@ -57,27 +58,28 @@ class EmailSender:
             response_message = await self._send()
             message_id = self._parse_response(response_message)
         except Exception:
-            self.email.status = EmailStatus.FAILED
-            await self.email.asave()
+            self.email = await EmailRepository.update_email(
+                self.email,
+                status=EmailStatus.FAILED,
+                provider_credential=self.credentials,
+            )
             raise
         else:
-            self.email.status = EmailStatus.SENT
-            self.email.provider_credential = self.credentials
-            self.email.external_id = message_id
-        await self.email.asave()
+            await EmailRepository.update_email(
+                self.email,
+                status=EmailStatus.SENT,
+                provider_credential=self.credentials,
+                external_id=message_id,
+            )
 
 
-async def send_email(email: Email):
-    PROVIDER_MAP = {
+async def send_email(email: Email, deployed_app: DeployedApp):
+    provider_map = {
         Provider.SMTP2GO: EmailSender,
         Provider.AMAZON_SES: EmailSender,
         Provider.MAILGUN: EmailSender,
     }
 
-    def sync_get_creds():
-        return email.deployed_app.owner.credentials.filter(is_active=True).first()
-
-    credential = await sync_to_async(sync_get_creds)()
-
-    provider = PROVIDER_MAP[credential.provider](email, credential)
+    credential = await ProviderCredentialsRepository.get_by_app(deployed_app)
+    provider = provider_map[credential.provider](email, credential)
     await provider.send_email()
