@@ -6,6 +6,7 @@ from starlette.requests import Request
 from wasmer_app.email_providers.email_event_handler import Smtp2GoEmailEventHandler
 from wasmer_app.email_providers.email_provider import send_email
 from wasmer_app.models import Plan
+from wasmer_app.repositories.credentials_repository import ProviderCredentialsRepository
 from wasmer_app.repositories.deployed_app_repository import DeployedAppRepository
 from wasmer_app.repositories.email_repository import EmailRepository
 from wasmer_app.repositories.user_repository import UserRepository
@@ -39,12 +40,13 @@ class EmailService:
                 return SendEmailResponse(
                     successful=False, message="Email limit reached for hobby plan."
                 )
-
+        creds = await ProviderCredentialsRepository.get_by_app(deployed_app)
         email = await EmailRepository.create_email(
             app_id=app_id,
             subject=subject,
             html=html,
             receiver=to,
+            provider_credential=creds,
         )
         await send_email(email, deployed_app)
         return SendEmailResponse(successful=True)

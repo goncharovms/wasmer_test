@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.db.models import Count, Q
 from django.db.models.functions import TruncDay, TruncMonth, TruncWeek
-from wasmer_app.models import Email, EmailStatus
+from wasmer_app.models import Email, EmailStatus, ProviderCredential
 from wasmer_app.repositories.base_repository import BaseRepository
 from wasmer_app.structures.input_enums import GroupByEnum
 from wasmer_app.structures.strawbery_types import EmailUsageGrouped, EmailUsageSummary
@@ -27,10 +27,19 @@ class EmailRepository(BaseRepository):
 
     @classmethod
     async def create_email(
-        cls, app_id: str, subject: str, html: str, receiver: str
+        cls,
+        app_id: str,
+        subject: str,
+        html: str,
+        receiver: str,
+        provider_credential: ProviderCredential,
     ) -> Email:
         email = Email(
-            deployed_app_id=app_id, subject=subject, html=html, receiver=receiver
+            deployed_app_id=app_id,
+            subject=subject,
+            html=html,
+            receiver=receiver,
+            provider_credential=provider_credential,
         )
         await email.asave()
         return email

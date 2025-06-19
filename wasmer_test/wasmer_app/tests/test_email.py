@@ -62,6 +62,11 @@ class GraphQLUserTests(TransactionTestCase):
             }
         """
 
+        self.get_creds_query = """
+            query GetCredentials($appId: ID!) {
+                getSmtpCredentials(appId: $appId)
+            }
+        """
         now = timezone.now()
         Email.objects.bulk_create(
             [
@@ -85,6 +90,17 @@ class GraphQLUserTests(TransactionTestCase):
                 ),
             ]
         )
+
+    async def test_get_credentials(self):
+        variables = {"appId": self.hobby_app.id}
+
+        response = await self.async_client.query(
+            self.get_creds_query, variables=variables
+        )
+
+        self.assertIsNotNone(response.data["getSmtpCredentials"])
+        creds = response.data["getSmtpCredentials"]
+        self.assertEqual(creds, self.creds.credentials)
 
     @patch(
         "wasmer_app.repositories.email_repository.EmailRepository.get_count_per_trial_period",
