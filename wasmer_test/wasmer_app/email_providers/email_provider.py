@@ -1,12 +1,18 @@
-from  email.message import EmailMessage
 import re
 import ssl
+from email.message import EmailMessage
 
 import aiosmtplib
 import certifi
-from wasmer_app.models import Email, EmailStatus, Provider, ProviderCredential, DeployedApp
-from wasmer_app.services.credentials_repository import ProviderCredentialsRepository
-from wasmer_app.services.email_repository import EmailRepository
+from wasmer_app.models import (
+    DeployedApp,
+    Email,
+    EmailStatus,
+    Provider,
+    ProviderCredential,
+)
+from wasmer_app.repositories.credentials_repository import ProviderCredentialsRepository
+from wasmer_app.repositories.email_repository import EmailRepository
 
 ssl_context = ssl.create_default_context(cafile=certifi.where())
 

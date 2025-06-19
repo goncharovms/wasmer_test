@@ -4,9 +4,9 @@ import strawberry
 import strawberry_django
 from strawberry import ID, auto
 from wasmer_app.models import User as User_
-from wasmer_app.schema import PlainTextNode
-from wasmer_app.services.email_repository import EmailRepository
-from wasmer_app.services.user_repository import UserRepository
+from wasmer_app.repositories.email_repository import EmailRepository
+from wasmer_app.repositories.user_repository import UserRepository
+from wasmer_app.schema.base_node import PlainTextNode
 from wasmer_app.structures.input_enums import GroupByEnum
 from wasmer_app.structures.strawbery_types import EmailUsageGrouped, TimeWindow
 

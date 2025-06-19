@@ -1,5 +1,5 @@
 from wasmer_app.models import Plan, User
-from wasmer_app.services.base_repository import BaseRepository
+from wasmer_app.repositories.base_repository import BaseRepository
 
 
 class UserRepository(BaseRepository):

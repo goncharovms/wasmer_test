@@ -1,22 +1,23 @@
-"""
-ASGI config for wasmer_test project.
-
-It exposes the ASGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/
-"""
-
 import os
 
 import django
+from starlette.applications import Starlette
+from starlette.routing import Route
 from strawberry.asgi import GraphQL
-from wasmer_app.schema import schema
+from wasmer_app.email_providers.webhook_controller import webhook_smtp2go_view
+from wasmer_app.schema.schema import schema
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "wasmer_test.settings")
 
 django.setup()
 
+
 graphql_app = GraphQL(schema)
 
-application = graphql_app
+
+application = Starlette(
+    routes=[
+        Route("/graphql", graphql_app),
+        Route("/webhook_smtp2go", webhook_smtp2go_view, methods=["POST"]),
+    ]
+)

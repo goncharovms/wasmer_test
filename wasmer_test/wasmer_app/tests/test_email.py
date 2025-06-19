@@ -87,7 +87,7 @@ class GraphQLUserTests(TransactionTestCase):
         )
 
     @patch(
-        "wasmer_app.services.email_repository.EmailRepository.get_count_per_trial_period",
+        "wasmer_app.repositories.email_repository.EmailRepository.get_count_per_trial_period",
         new_callable=AsyncMock,
     )
     @patch(
@@ -121,7 +121,7 @@ class GraphQLUserTests(TransactionTestCase):
         self.assertEqual(email.external_id, "aFLx7W5F3rtNsImJaFMW-9mj0IJfKetc")
 
     @patch(
-        "wasmer_app.services.email_repository.EmailRepository.get_count_per_trial_period",
+        "wasmer_app.repositories.email_repository.EmailRepository.get_count_per_trial_period",
         new_callable=AsyncMock,
     )
     async def test_send_email_hobby_user_over_limit(self, mock_get_count):

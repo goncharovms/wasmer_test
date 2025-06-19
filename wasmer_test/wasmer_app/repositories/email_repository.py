@@ -3,13 +3,17 @@ from datetime import datetime
 from django.db.models import Count, Q
 from django.db.models.functions import TruncDay, TruncMonth, TruncWeek
 from wasmer_app.models import Email, EmailStatus
-from wasmer_app.services.base_repository import BaseRepository
+from wasmer_app.repositories.base_repository import BaseRepository
 from wasmer_app.structures.input_enums import GroupByEnum
 from wasmer_app.structures.strawbery_types import EmailUsageGrouped, EmailUsageSummary
 
 
 class EmailRepository(BaseRepository):
     model_class = Email
+
+    @classmethod
+    async def get_by_message_id(cls, message_id: str) -> Email:
+        return await Email.objects.aget(external_id=message_id)
 
     @classmethod
     async def get_count_per_trial_period(
@@ -22,8 +26,12 @@ class EmailRepository(BaseRepository):
         return email_count
 
     @classmethod
-    async def create_email(cls, app_id: str, subject: str, html: str, receiver: str) -> Email:
-        email = Email(deployed_app_id=app_id, subject=subject, html=html, receiver=receiver)
+    async def create_email(
+        cls, app_id: str, subject: str, html: str, receiver: str
+    ) -> Email:
+        email = Email(
+            deployed_app_id=app_id, subject=subject, html=html, receiver=receiver
+        )
         await email.asave()
         return email
 

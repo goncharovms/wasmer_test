@@ -6,6 +6,9 @@ certifi==2025.6.15
 Django==4.2
 django-choices-field==2.3.0
 graphql-core==3.2.6
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
 idna==3.10
 packaging==25.0
 python-dateutil==2.9.0.post0
