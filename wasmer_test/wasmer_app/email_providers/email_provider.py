@@ -44,7 +44,7 @@ class EmailSender:
         return message
 
     @staticmethod
-    def _parse_response(response_message) -> str | None:
+    def _get_message_id(response_message) -> str | None:
         if "Accepted" not in response_message:
             raise SendEmailException("Message not accepted")
 
@@ -52,11 +52,12 @@ class EmailSender:
         if match:
             msg_id = match.group(1)
             return msg_id
+        return None
 
     async def send_email(self):
         try:
             response_message = await self._send()
-            message_id = self._parse_response(response_message)
+            message_id = self._get_message_id(response_message)
         except Exception:
             self.email = await EmailRepository.update_email(
                 self.email,
